@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\RegisterMeetupRequest;
 use App\Models\Meetup;
-use App\Notifications\NewSignUp;
+use App\Events\RegisterUser;
+use App\Notifications\LoggedIn;
 use Illuminate\Http\Request;
+use App\Mail\SignupConfirmed;
+use App\Notifications\NewSignUp;
+use Illuminate\Support\Facades\Mail;
+use App\Http\Requests\RegisterMeetupRequest;
+use Illuminate\Support\Facades\Notification;
 
 class MeetupController extends Controller
 {
@@ -13,19 +18,14 @@ class MeetupController extends Controller
     public string $name = '';
     public string $email = '';
 
-    public function register(RegisterMeetupRequest $request)
+    public function sendMail(Request $request)
     {
-        $data = $request->validated();
-
-        $meetup = Meetup::find($data['selectedMeetup']);
-
-        $meetup->organizer->notify(new NewSignUp($data['name'],$data['email']));
+        event(new RegisterUser($request->user()));
     }
 
-    public function with()
+    public function sendNotification(Request $request)
     {
-        return [
-
-        ];
+        Notification::send($request->user(), new LoggedIn($request));
     }
+
 }
