@@ -2,12 +2,14 @@
 
 namespace App\Mail;
 
+use App\Models\User;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 class SignupConfirmed extends Mailable
 {
@@ -16,7 +18,7 @@ class SignupConfirmed extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct(public User $user)
     {
         //
     }
@@ -37,7 +39,10 @@ class SignupConfirmed extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            markdown: 'mail.signup',
+            with:[
+                'url' => config('app.url') . ':' . config('app.port')
+            ]
         );
     }
 
@@ -48,6 +53,10 @@ class SignupConfirmed extends Mailable
      */
     public function attachments(): array
     {
-        return [];
+        return [
+            Attachment::fromPath(public_path('done.jpeg'))
+                ->as('done.jpeg')
+                ->withMime('image/jpeg'),
+        ];
     }
 }
